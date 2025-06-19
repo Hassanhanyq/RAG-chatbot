@@ -1,7 +1,7 @@
 from typing import List, Dict
 from langchain.docstore.document import Document
 from langchain_experimental.text_splitter import SemanticChunker
-from rag.embedder import get_embedder
+from .embedder import get_embedder
 
 
 def semantic_chunk_documents(
