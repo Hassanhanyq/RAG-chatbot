@@ -17,7 +17,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     #username = Column(String, nullable=False, unique=True)
     username = Column(String, unique=True, nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=datetime.now())
     verified = Column(Boolean, default=False)
 
     conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
@@ -29,7 +29,7 @@ class Conversation(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"))
     title = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=datetime.now())
 
     user = relationship("User", back_populates="conversations")
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
@@ -42,6 +42,6 @@ class Message(Base):
     conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"))
     sender = Column(String, nullable=False)  # 'user' or 'assistant'
     content = Column(String, nullable=False)
-    timestamp = Column(DateTime, default=datetime.now(timezone.utc))
+    timestamp = Column(DateTime, default=datetime.now())
 
     conversation = relationship("Conversation", back_populates="messages")

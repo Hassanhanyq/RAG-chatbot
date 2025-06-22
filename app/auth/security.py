@@ -7,7 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 from app.db.models import User
 from app.db.db import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -41,7 +42,7 @@ def verify_email_token(token: str):
         return None
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ) -> User:
     """
     Validates the JWT access token and returns the current authenticated user.
@@ -72,7 +73,8 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = db.query(User).filter(User.email == email).first()
+    result = await db.execute(select(User).filter(User.email == email))
+    user = result.scalar_one_or_none() 
     if user is None:
         raise credentials_exception
     if not user.verified:
