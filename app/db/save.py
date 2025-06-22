@@ -1,10 +1,10 @@
 from app.db.models import Message
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 
 
-def save_message(db: Session, conversation_id: UUID, sender: str, content: str):
+async def save_message(db: AsyncSession, conversation_id: UUID, sender: str, content: str):
     """
     Saves a message to the database.
 
@@ -18,8 +18,7 @@ def save_message(db: Session, conversation_id: UUID, sender: str, content: str):
         conversation_id=conversation_id,
         sender=sender,
         content=content,
-        timestamp=datetime.now(datetime.timezone.utc)
+        timestamp=datetime.now(timezone.utc)
     )
     db.add(message)
-    db.commit()
-    db.refresh(message)
+    return(message)
