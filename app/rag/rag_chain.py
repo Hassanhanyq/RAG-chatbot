@@ -8,7 +8,7 @@ client = OpenAI(base_url="http://localhost:1234/v1", api_key="not-needed")
 
 
 
-def RAG_pipeline(query: str, system_prompt: str = "You are a helpful therapist.") -> str:
+def RAG_pipeline(query: str, system_prompt: str = "You are a helpful therapist."):
     """
     Executes the full RAG pipeline:
     - Retrieves relevant documents
@@ -42,10 +42,7 @@ def RAG_pipeline(query: str, system_prompt: str = "You are a helpful therapist."
         stream=True,
         max_completion_tokens=10000
     )
-    full_response_content = ""
     for chunk in completion:
-            if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
-                full_response_content += chunk.choices[0].delta.content
-
-    return full_response_content.strip()
+        if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
+           yield chunk.choices[0].delta.content
 
