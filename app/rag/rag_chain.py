@@ -42,6 +42,7 @@ def RAG_pipeline(query: str, system_prompt: str = "You are a helpful therapist."
         stream=True,
         max_completion_tokens=10000
     )
+    full_response_content = ""
     for chunk in completion:
             if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
                 full_response_content += chunk.choices[0].delta.content

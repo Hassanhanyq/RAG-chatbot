@@ -12,4 +12,4 @@ class LoginRequest(BaseModel):
     password: str 
 class ChatRequest(BaseModel):
     query: str=Field(min_length=1, max_length=7000)
-    conversation_id: Optional[UUID]
+    conversation_id: Optional[UUID]= None
