@@ -15,6 +15,8 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
+    username = Column(String, nullable=False, unique=True)
+    username = Column(String, unique=True, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.now(datetime.timezone.utc))
     verified = Column(Boolean, default=False)
 

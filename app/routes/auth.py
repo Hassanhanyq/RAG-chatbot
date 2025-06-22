@@ -5,6 +5,7 @@ from app.db.models import User
 from app.schemas.schemas import SignupRequest, LoginRequest
 from app.auth.security import hash_password, verify_password, create_access_token, create_email_verification_token, verify_email_token
 from app.utils.email import send_verification_email
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/signup")
@@ -14,6 +15,9 @@ async def signup(data: SignupRequest, db: Session = Depends(get_db)):
     user_exists = db.query(User).filter(User.email == data.email).first()
     if user_exists:
         raise HTTPException(status_code=400, detail="Email already registered.")
+    username_exists=db.query(User).filter(User.username== data.username).first()
+    if(username_exists):
+        raise HTTPException(status_code=400, detail="Username already exists")
 
     new_user = User(
         email=data.email,
@@ -44,6 +48,7 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     db.commit()
 
     return {"msg": "Email verified successfully!"}
+
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()

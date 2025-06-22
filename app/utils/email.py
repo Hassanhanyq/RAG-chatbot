@@ -16,6 +16,7 @@ conf = ConnectionConfig(
     USE_CREDENTIALS=True,
     VALIDATE_CERTS=True
 )
+fm = FastMail(conf)
 async def send_verification_email(email: EmailStr, token: str):
     """
     Sends an email verification message to the user's email address.
@@ -42,5 +43,5 @@ async def send_verification_email(email: EmailStr, token: str):
         subtype="html"
     )
 
-    fm = FastMail(conf)
+    
     await fm.send_message(message)
