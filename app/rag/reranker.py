@@ -16,7 +16,9 @@ class LocalReranker:
     def __init__(self, model_name: str = "BAAI/bge-reranker-large"):
         self.model = CrossEncoder(model_name)
 
-    def rerank(self, query: str, docs: List[Document], top_k: int = 3) -> List[Document]:
+    def rerank(
+        self, query: str, docs: List[Document], top_k: int = 3
+    ) -> List[Document]:
         """
         Reranks a list of documents based on relevance to the query.
 
@@ -28,12 +30,10 @@ class LocalReranker:
         Returns:
             List[Document]: Top-k documents ranked by cross-encoder relevance.
         """
-        
+
         pairs = [(query, doc.page_content) for doc in docs]
 
-        
         scores = self.model.predict(pairs)
 
-        
         reranked = sorted(zip(docs, scores), key=lambda x: x[1], reverse=True)
         return [doc for doc, _ in reranked[:top_k]]

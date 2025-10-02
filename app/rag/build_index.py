@@ -1,6 +1,6 @@
-from .loader import load_all_pdfs
 from .chunker import semantic_chunk_documents
 from .embedder import get_embedder
+from .loader import load_all_pdfs
 from .vectorstore import build_faiss_vectorstore
 
 pdfs = load_all_pdfs("app/data")

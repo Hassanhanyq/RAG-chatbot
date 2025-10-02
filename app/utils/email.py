@@ -1,7 +1,8 @@
-from fastapi_mail import ConnectionConfig, MessageSchema, FastMail
-from pydantic import EmailStr
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
+from pydantic import EmailStr
 
 load_dotenv()
 
@@ -14,9 +15,11 @@ conf = ConnectionConfig(
     MAIL_STARTTLS=False,
     MAIL_SSL_TLS=True,
     USE_CREDENTIALS=True,
-    VALIDATE_CERTS=True
+    VALIDATE_CERTS=True,
 )
 fm = FastMail(conf)
+
+
 async def send_verification_email(email: EmailStr, token: str):
     """
     Sends an email verification message to the user's email address.
@@ -28,7 +31,7 @@ async def send_verification_email(email: EmailStr, token: str):
     This function constructs a verification link containing the token
     and sends it to the specified email using FastAPI-Mail with SMTP.
     """
-    verify_link = f"http://localhost:8000/auth/verify?token={token}"  
+    verify_link = f"http://localhost:8000/auth/verify?token={token}"
 
     message = MessageSchema(
         subject="Verify your email",
@@ -40,8 +43,7 @@ async def send_verification_email(email: EmailStr, token: str):
             <br><br>
             <p>If you didn't sign up, you can ignore this email.</p>
         """,
-        subtype="html"
+        subtype="html",
     )
 
-    
     await fm.send_message(message)

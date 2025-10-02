@@ -1,8 +1,9 @@
 import uuid
-from sqlalchemy import Column, String, Boolean, ForeignKey, DateTime, JSON
+from datetime import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, DeclarativeBase
-from datetime import datetime, timezone
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
@@ -15,12 +16,14 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String, unique=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    #username = Column(String, nullable=False, unique=True)
+    # username = Column(String, nullable=False, unique=True)
     username = Column(String, unique=True, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.now())
     verified = Column(Boolean, default=False)
 
-    conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
+    conversations = relationship(
+        "Conversation", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Conversation(Base):
@@ -32,14 +35,18 @@ class Conversation(Base):
     created_at = Column(DateTime, default=datetime.now())
 
     user = relationship("User", back_populates="conversations")
-    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+    messages = relationship(
+        "Message", back_populates="conversation", cascade="all, delete-orphan"
+    )
 
 
 class Message(Base):
     __tablename__ = "messages"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    conversation_id = Column(UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE"))
+    conversation_id = Column(
+        UUID(as_uuid=True), ForeignKey("conversations.id", ondelete="CASCADE")
+    )
     sender = Column(String, nullable=False)  # 'user' or 'assistant'
     content = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.now())
