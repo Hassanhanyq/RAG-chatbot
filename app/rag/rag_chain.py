@@ -1,5 +1,4 @@
-from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
-from langchain_openai import ChatOpenAI
+
 from openai import OpenAI
 
 from .initlization import get_reranker, get_retriever
