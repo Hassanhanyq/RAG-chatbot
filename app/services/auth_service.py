@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.security import (
@@ -20,19 +20,11 @@ class AuthService:
         if data.password != data.confirm_password:
             raise HTTPException(status_code=400, detail="Passwords do not match.")
 
-        result = await db.execute(select(User).filter(User.email == data.email))
+        result = await db.execute(
+            select(User).filter(or_(User.email == data.email, User.username == data.username))
+        )
         if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered.",
-            )
-
-        result = await db.execute(select(User).filter(User.username == data.username))
-        if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username already taken.",
-            )
+            raise HTTPException(status_code=400, detail="Email or username already taken")
 
         new_user = User(
             email=data.email,
@@ -40,13 +32,17 @@ class AuthService:
             hashed_password=hash_password(data.password),
             verified=False,
         )
-        db.add(new_user)
-        await db.commit()
-        await db.refresh(new_user)
+       
 
         token = create_email_verification_token(data.email)
-        await send_verification_email(data.email, token)
-
+        try:
+            await send_verification_email(data.email, token)
+            db.add(new_user)
+            await db.commit()
+            await db.refresh(new_user)
+        except Exception:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail="Failed to send verification email")
         return {"msg": "Check your email to verify your account."}
 
     @staticmethod
